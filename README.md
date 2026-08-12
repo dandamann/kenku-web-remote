@@ -61,7 +61,32 @@ The browser talks only to this server; the server forwards to Kenku:
 | `PUT /api/soundboard/play`     | `PUT /v1/soundboard/play`     |
 | `PUT /api/soundboard/stop`     | `PUT /v1/soundboard/stop`     |
 
-The UI polls `/api/soundboard/playback` every 1.5s to highlight what's playing.
+The UI polls `/api/soundboard/playback` every 5s to keep the now-playing
+highlight current, and pauses polling entirely while the tab is hidden (phone
+locked / app backgrounded). Tapping a button refreshes playback immediately, so
+your own actions never wait for the poll.
+
+## Troubleshooting
+
+- **Connected, but "No soundboards found".** Kenku's remote only returns
+  *soundboards* (and the sounds inside them). Make sure you have at least one
+  Soundboard created in the Kenku app with sounds in it. If it's still empty
+  right after launching Kenku, its remote view may not be ready yet —
+  **restarting the Kenku app** fixes it. To see the raw response, run from the
+  Portainer host: `docker exec kenku-web-remote wget -qO- http://<kenku-ip>:3333/v1/soundboard`.
+- **Logs show `proxying to http://host.docker.internal:3333` after you set
+  `KENKU_URL`.** The stack didn't pick up your variable. Confirm it's named
+  exactly `KENKU_URL` in the Portainer stack, then **re-deploy the stack** (not
+  just restart the container) so the compose file is re-read.
+- **`502` / "Could not reach Kenku FM".** The container can't reach Kenku.
+  Check, in order: Kenku's remote is enabled and bound to `0.0.0.0`; `KENKU_URL`
+  points at the Kenku machine's LAN IP (not the phone's, not the Portainer
+  host's); and the host firewall allows inbound `3333` (Windows Firewall often
+  needs an allow rule). The `502` body's `detail` field distinguishes the cause:
+  `ECONNREFUSED` = reachable but nothing listening on that address;
+  `ENOTFOUND`/timeout = wrong IP or blocked.
+- **Changes not showing on the phone.** The browser caches `app.js`/`styles.css`.
+  Hard-refresh (pull-to-refresh, or close and reopen the tab) after redeploying.
 
 ## Notes & limitations
 
