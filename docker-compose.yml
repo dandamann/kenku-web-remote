@@ -9,8 +9,10 @@ services:
       - "8787:8787"
     environment:
       # Point this at the machine running Kenku FM. Use its LAN IP, e.g.
-      # http://192.168.1.20:3333. host.docker.internal works if Kenku runs on
-      # the same host as Docker (the extra_hosts line below wires it up on Linux).
-      KENKU_URL: "http://host.docker.internal:3333"
+      # http://192.168.1.20:3333. Set KENKU_URL in the Portainer stack's
+      # environment variables and it's substituted in below; the value after
+      # ":-" is only the fallback if you don't set one. host.docker.internal
+      # works if Kenku runs on the same host as Docker (wired up by extra_hosts).
+      KENKU_URL: "${KENKU_URL:-http://host.docker.internal:3333}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
