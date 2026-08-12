@@ -1,0 +1,16 @@
+services:
+  kenku-web-remote:
+    build: .
+    # If you push the image to a registry instead of building in Portainer,
+    # replace `build: .` above with e.g. `image: ghcr.io/dandamann/kenku-web-remote:latest`.
+    container_name: kenku-web-remote
+    restart: unless-stopped
+    ports:
+      - "8787:8787"
+    environment:
+      # Point this at the machine running Kenku FM. Use its LAN IP, e.g.
+      # http://192.168.1.20:3333. host.docker.internal works if Kenku runs on
+      # the same host as Docker (the extra_hosts line below wires it up on Linux).
+      KENKU_URL: "http://host.docker.internal:3333"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
