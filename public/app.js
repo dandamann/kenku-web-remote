@@ -166,11 +166,30 @@ function escapeHtml(s) {
 
 stopAllBtn.addEventListener("click", stopAll);
 
-// Refetch boards when the phone wakes / tab refocuses so a soundboard added in
-// Kenku mid-session shows up without a manual reload.
+// Poll playback for the now-playing highlight, but only while the page is
+// actually on screen — no point hammering Kenku when the phone is locked.
+const POLL_MS = 2000;
+let pollTimer;
+function startPolling() {
+  if (pollTimer) return;
+  refreshPlayback();
+  pollTimer = setInterval(refreshPlayback, POLL_MS);
+}
+function stopPolling() {
+  clearInterval(pollTimer);
+  pollTimer = null;
+}
+
+// When the phone wakes / tab refocuses, refetch boards (a soundboard added in
+// Kenku mid-session shows up without a manual reload) and resume polling.
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) loadBoards();
+  if (document.hidden) {
+    stopPolling();
+  } else {
+    loadBoards();
+    startPolling();
+  }
 });
 
 loadBoards();
-setInterval(refreshPlayback, 1500);
+startPolling();
