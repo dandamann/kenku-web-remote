@@ -168,7 +168,7 @@ stopAllBtn.addEventListener("click", stopAll);
 
 // Poll playback for the now-playing highlight, but only while the page is
 // actually on screen — no point hammering Kenku when the phone is locked.
-const POLL_MS = 2000;
+const POLL_MS = 5000;
 let pollTimer;
 function startPolling() {
   if (pollTimer) return;
