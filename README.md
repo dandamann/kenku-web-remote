@@ -67,6 +67,20 @@ highlight current, and pauses polling entirely while the tab is hidden (phone
 locked / app backgrounded). Tapping a button refreshes playback immediately, so
 your own actions never wait for the poll.
 
+## Exporting sounds from Discord
+
+`scripts/export-discord-sounds.mjs` downloads every soundboard sound from a
+Discord server so you can add them to Kenku. Your bot must be a member of the
+server; no special permissions are needed.
+
+```bash
+DISCORD_BOT_TOKEN=... DISCORD_GUILD_ID=... npm run export-discord-sounds
+```
+
+Files land in `./discord-sounds` (or pass another folder as an argument).
+Get the guild ID by enabling Developer Mode in Discord, then right-clicking the
+server icon and choosing **Copy Server ID**.
+
 ## Troubleshooting
 
 - **Connected, but "No soundboards found".** Kenku's remote only returns
