@@ -99,8 +99,10 @@ function makeSoundButton(sound, board) {
   // must not also play the sound.
   let pressTimer;
   let longPressed = false;
+  let pointerType = "";
   const cancelPress = () => clearTimeout(pressTimer);
-  btn.addEventListener("pointerdown", () => {
+  btn.addEventListener("pointerdown", (e) => {
+    pointerType = e.pointerType;
     longPressed = false;
     pressTimer = setTimeout(() => {
       longPressed = true;
@@ -112,7 +114,7 @@ function makeSoundButton(sound, board) {
   }
   btn.addEventListener("contextmenu", (e) => {
     e.preventDefault(); // suppress the mobile long-press menu
-    if (e.pointerType === "mouse") toggleFavourite(sound.id); // desktop right-click
+    if (pointerType === "mouse") toggleFavourite(sound.id); // desktop right-click
   });
   btn.addEventListener("click", () => {
     if (longPressed) {
