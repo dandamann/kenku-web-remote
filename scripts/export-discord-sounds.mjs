@@ -66,8 +66,12 @@ for (const sound of sounds) {
   const type = (res.headers.get("content-type") || "").split(";")[0];
   const ext = EXT_BY_TYPE[type] || ".mp3";
 
+  // Unicode emoji go on the end of the name so the web remote can show them.
+  // Custom server emoji (emoji_id set) have no Unicode form, so they're skipped.
+  const emoji = sound.emoji_id ? "" : sound.emoji_name || "";
+
   // Two sounds can share a name; keep both.
-  const base = safeName(sound.name);
+  const base = safeName(emoji ? `${sound.name} ${emoji}` : sound.name);
   let file = base + ext;
   for (let n = 2; used.has(file.toLowerCase()); n++) file = `${base} (${n})${ext}`;
   used.add(file.toLowerCase());

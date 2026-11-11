@@ -77,6 +77,10 @@ server; no special permissions are needed.
 DISCORD_BOT_TOKEN=... DISCORD_GUILD_ID=... npm run export-discord-sounds
 ```
 
+Sounds that have a Discord emoji are named like `Airhorn 📯.mp3`. The web remote
+shows a trailing emoji in a sound's title large on its button, with the name as
+the label, so you can also add one by hand by editing the title in Kenku.
+
 Files land in `./discord-sounds` (or pass another folder as an argument).
 Get the guild ID by enabling Developer Mode in Discord, then right-clicking the
 server icon and choosing **Copy Server ID**.

@@ -37,6 +37,17 @@ function isHttp(url) {
   return typeof url === "string" && /^https?:\/\//i.test(url);
 }
 
+// A sound titled "Airhorn 📯" shows the emoji large and "Airhorn" as the label.
+const TRAILING_EMOJI =
+  /\s*((?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\uFE0F|\u200D|\p{Emoji_Modifier}|\p{Extended_Pictographic}|\p{Regional_Indicator})*)\s*$/u;
+
+function splitEmoji(title) {
+  const m = TRAILING_EMOJI.exec(title);
+  const name = m ? title.slice(0, m.index).trim() : title;
+  // A title that is only an emoji stays as plain text.
+  return m && name ? { name, emoji: m[1] } : { name: title, emoji: "" };
+}
+
 async function loadBoards() {
   try {
     const data = await api("/api/soundboard");
@@ -74,8 +85,15 @@ async function loadBoards() {
         if (isHttp(board.background)) {
           btn.style.backgroundImage = `url("${board.background}")`;
         }
+        const { name, emoji } = splitEmoji(sound.title || "Untitled");
+        if (emoji) {
+          const icon = document.createElement("span");
+          icon.className = "emoji";
+          icon.textContent = emoji;
+          btn.appendChild(icon);
+        }
         const label = document.createElement("span");
-        label.textContent = sound.title || "Untitled";
+        label.textContent = name;
         btn.appendChild(label);
         btn.addEventListener("click", () => toggle(sound.id));
         grid.appendChild(btn);

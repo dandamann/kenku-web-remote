@@ -137,6 +137,13 @@ body {
   z-index: 1;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
+.sound .emoji {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 1.8rem;
+  line-height: 1;
+}
 .sound:active {
   transform: scale(0.96);
 }
