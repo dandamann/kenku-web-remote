@@ -51,6 +51,12 @@ KENKU_URL=http://127.0.0.1:3333 npm start
 | `PORT`      | `8787`                             | Port the web app listens on.            |
 | `HOST`      | `0.0.0.0`                          | Interface the web app binds to.         |
 
+## Favourites
+
+Long-press a sound (right-click on desktop) to add or remove it from a
+**Favourites** row at the top. Favourites are saved in that browser only, so
+each phone keeps its own list.
+
 ## How it works
 
 The browser talks only to this server; the server forwards to Kenku:

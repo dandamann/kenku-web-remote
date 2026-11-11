@@ -125,6 +125,8 @@ body {
   display: flex;
   align-items: flex-end;
   transition: transform 0.06s ease, border-color 0.2s;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 .sound::before {
   content: "";
@@ -143,6 +145,10 @@ body {
   left: 12px;
   font-size: 1.8rem;
   line-height: 1;
+}
+.sound.favourite span:last-child::after {
+  content: " \2605";
+  color: #f5c542;
 }
 .sound:active {
   transform: scale(0.96);
