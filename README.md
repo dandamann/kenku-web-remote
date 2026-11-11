@@ -47,6 +47,7 @@ KENKU_URL=http://127.0.0.1:3333 npm start
 | Variable    | Default                            | Description                             |
 | ----------- | ---------------------------------- | --------------------------------------- |
 | `KENKU_URL` | `http://host.docker.internal:3333` | Base URL of the Kenku FM remote server. |
+| `SOUNDBOARDS` | _(all)_                          | Comma-separated soundboard titles to show, e.g. `Combat,Ambience`. Case-insensitive; unset shows everything. |
 | `PORT`      | `8787`                             | Port the web app listens on.            |
 | `HOST`      | `0.0.0.0`                          | Interface the web app binds to.         |
 

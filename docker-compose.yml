@@ -14,5 +14,7 @@ services:
       # ":-" is only the fallback if you don't set one. host.docker.internal
       # works if Kenku runs on the same host as Docker (wired up by extra_hosts).
       KENKU_URL: "${KENKU_URL:-http://host.docker.internal:3333}"
+      # Optional: comma-separated soundboard titles to show (empty = all).
+      SOUNDBOARDS: "${SOUNDBOARDS:-}"
     extra_hosts:
       - "host.docker.internal:host-gateway"

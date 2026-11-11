@@ -13,6 +13,13 @@ const KENKU_URL = (process.env.KENKU_URL || "http://host.docker.internal:3333").
 const PORT = Number(process.env.PORT || 8787);
 const HOST = process.env.HOST || "0.0.0.0";
 
+// Optional comma-separated soundboard titles to show (case-insensitive). Unset
+// or empty shows every soundboard.
+const ONLY_BOARDS = (process.env.SOUNDBOARDS || "")
+  .split(",")
+  .map((t) => t.trim().toLowerCase())
+  .filter(Boolean);
+
 const fastify = Fastify({ logger: true });
 
 fastify.register(fastifyStatic, {
@@ -48,6 +55,11 @@ fastify.get("/api/config", async () => ({ kenkuUrl: KENKU_URL }));
 
 fastify.get("/api/soundboard", async (_req, reply) => {
   const { status, body } = await kenku("/v1/soundboard");
+  if (ONLY_BOARDS.length && Array.isArray(body.soundboards)) {
+    body.soundboards = body.soundboards.filter((b) =>
+      ONLY_BOARDS.includes(String(b.title || "").trim().toLowerCase()),
+    );
+  }
   reply.status(status).send(body);
 });
 
