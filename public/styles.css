@@ -125,8 +125,6 @@ body {
   display: flex;
   align-items: flex-end;
   transition: transform 0.06s ease, border-color 0.2s;
-  -webkit-touch-callout: none;
-  user-select: none;
 }
 .sound::before {
   content: "";
@@ -146,8 +144,31 @@ body {
   font-size: 1.8rem;
   line-height: 1;
 }
-.sound.favourite span:last-child::after {
-  content: " \2605";
+.tile {
+  position: relative;
+  display: flex;
+}
+.tile .sound {
+  flex: 1;
+  min-width: 0;
+}
+.star {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1.3rem;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+.star.on {
   color: #f5c542;
 }
 .sound:active {
@@ -160,8 +181,8 @@ body {
 .sound.playing::after {
   content: "";
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 17px;
+  right: 44px;
   z-index: 2;
   width: 10px;
   height: 10px;

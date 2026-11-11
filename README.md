@@ -53,8 +53,8 @@ KENKU_URL=http://127.0.0.1:3333 npm start
 
 ## Favourites
 
-Long-press a sound (right-click on desktop) to add or remove it from a
-**Favourites** row at the top. Favourites are saved in that browser only, so
+Tap the star on a sound to add or remove it from a **Favourites** row at the
+top. Favourites are saved in that browser only, so
 each phone keeps its own list.
 
 ## How it works

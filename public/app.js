@@ -49,9 +49,8 @@ function splitEmoji(title) {
 }
 
 // Favourites live only in this browser (localStorage), as an ordered list of
-// sound ids. Long-press (or right-click) a button to add or remove one.
+// sound ids. The star on each button adds or removes one.
 const FAV_KEY = "kenku-remote-favourites";
-const LONG_PRESS_MS = 500;
 let favourites = loadFavourites();
 let lastData = null; // last /api/soundboard response, so toggling a favourite can re-render
 
@@ -75,12 +74,15 @@ function toggleFavourite(id) {
   renderBoards();
 }
 
+// A tile is the sound button plus a sibling star button (buttons can't nest).
 function makeSoundButton(sound, board) {
+  const tile = document.createElement("div");
+  tile.className = "tile";
+
   const btn = document.createElement("button");
   btn.className = "sound";
   btn.type = "button";
   btn.dataset.id = sound.id;
-  btn.classList.toggle("favourite", favourites.includes(sound.id));
   if (isHttp(board.background)) {
     btn.style.backgroundImage = `url("${board.background}")`;
   }
@@ -94,36 +96,21 @@ function makeSoundButton(sound, board) {
   const label = document.createElement("span");
   label.textContent = name;
   btn.appendChild(label);
+  btn.addEventListener("click", () => toggle(sound.id));
+  tile.appendChild(btn);
 
-  // A long press toggles the favourite; the click that follows the release
-  // must not also play the sound.
-  let pressTimer;
-  let longPressed = false;
-  let pointerType = "";
-  const cancelPress = () => clearTimeout(pressTimer);
-  btn.addEventListener("pointerdown", (e) => {
-    pointerType = e.pointerType;
-    longPressed = false;
-    pressTimer = setTimeout(() => {
-      longPressed = true;
-      toggleFavourite(sound.id);
-    }, LONG_PRESS_MS);
-  });
-  for (const ev of ["pointerup", "pointerleave", "pointercancel"]) {
-    btn.addEventListener(ev, cancelPress);
-  }
-  btn.addEventListener("contextmenu", (e) => {
-    e.preventDefault(); // suppress the mobile long-press menu
-    if (pointerType === "mouse") toggleFavourite(sound.id); // desktop right-click
-  });
-  btn.addEventListener("click", () => {
-    if (longPressed) {
-      longPressed = false;
-      return;
-    }
-    toggle(sound.id);
-  });
-  return btn;
+  const isFav = favourites.includes(sound.id);
+  const star = document.createElement("button");
+  star.className = "star";
+  star.type = "button";
+  star.classList.toggle("on", isFav);
+  star.textContent = isFav ? "\u2605" : "\u2606";
+  star.setAttribute("aria-label", `${isFav ? "Remove" : "Add"} ${name} ${isFav ? "from" : "to"} favourites`);
+  star.setAttribute("aria-pressed", String(isFav));
+  star.addEventListener("click", () => toggleFavourite(sound.id));
+  tile.appendChild(star);
+
+  return tile;
 }
 
 function makeSection(title, buttons) {
