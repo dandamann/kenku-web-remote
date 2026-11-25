@@ -61,7 +61,7 @@ each phone keeps its own list.
 
 ## Previewing sounds in the browser
 
-Each sound gets a ▶ button that plays the file in your browser (not through
+Each sound gets a 🎧 button that plays the file in your browser (not through
 Kenku), so you can audition sounds from the sofa. It's off until you set it up,
 because Kenku reports `file://` paths on its own machine and this app needs to
 read the same files:

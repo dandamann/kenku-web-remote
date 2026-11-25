@@ -90,8 +90,9 @@ body {
 
 .preview-volume {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 4px 10px;
   width: 100%;
   color: var(--muted);
   font-size: 0.85rem;
@@ -101,7 +102,7 @@ body {
 }
 .preview-volume input {
   flex: 1;
-  min-width: 0;
+  min-width: 140px;
   accent-color: var(--accent);
 }
 

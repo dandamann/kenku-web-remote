@@ -221,8 +221,10 @@ function applyPreviewClasses() {
   for (const btn of boardsEl.querySelectorAll(".preview")) {
     const on = btn.dataset.id === previewId;
     btn.classList.toggle("on", on);
-    btn.textContent = on ? "\u25A0" : "\u25B6";
-    btn.setAttribute("aria-label", on ? "Stop preview" : "Preview in this browser");
+    btn.textContent = on ? "\u25A0" : "\u{1F3A7}"; // stop square, or headphones
+    const hint = on ? "Stop preview" : "Preview on this device only";
+    btn.setAttribute("aria-label", hint);
+    btn.title = hint;
   }
 }
 
