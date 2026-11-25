@@ -80,6 +80,9 @@ The browser only sends a sound id. The server looks up the path from Kenku's own
 list and refuses anything outside `SOUNDS_PREFIX`. Sounds that aren't local
 files (`http(s)` URLs) can't be previewed.
 
+Some Discord soundboard `.ogg` files have timestamps that Kenku accepts but
+Firefox rejects. Previews correct them on the fly; your files aren't changed.
+
 ## How it works
 
 The browser talks only to this server; the server forwards to Kenku:

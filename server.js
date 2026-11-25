@@ -1,8 +1,11 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
+
+import { repairOpusTimestamps } from "./lib/opus.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -99,6 +102,36 @@ fastify.put("/api/soundboard/stop", async (req, reply) => {
   reply.status(status).send(body);
 });
 
+// A repaired copy of an Ogg Opus file with broken timestamps, held in memory; the
+// file on disk is never changed. Null means "serve the original", including when
+// it can't be read, so sendFile reports that the usual way.
+const MAX_REPAIR_BYTES = 20 * 1024 * 1024;
+async function readRepaired(file) {
+  try {
+    if ((await fs.stat(file)).size > MAX_REPAIR_BYTES) return null;
+    return repairOpusTimestamps(await fs.readFile(file));
+  } catch {
+    return null;
+  }
+}
+
+// Send a buffer, honouring a single byte range (Safari needs this for media).
+function sendBuffer(req, reply, data) {
+  reply.header("accept-ranges", "bytes");
+  const match = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+  if (!match || (!match[1] && !match[2])) return reply.send(data);
+
+  const start = match[1] ? Number(match[1]) : Math.max(0, data.length - Number(match[2]));
+  const end = match[1] && match[2] ? Math.min(Number(match[2]), data.length - 1) : data.length - 1;
+  if (start > end) {
+    return reply.status(416).header("content-range", `bytes */${data.length}`).send();
+  }
+  return reply
+    .status(206)
+    .header("content-range", `bytes ${start}-${end}/${data.length}`)
+    .send(data.subarray(start, end + 1));
+}
+
 // Stream a sound's audio file for in-browser preview. The browser only sends a
 // sound id; the path comes from Kenku's own list and must sit under
 // SOUNDS_PREFIX, so no client-supplied path ever touches the filesystem.
@@ -121,7 +154,13 @@ fastify.get("/api/audio/:id", async (req, reply) => {
   if (!prefix) {
     return reply.status(404).send({ message: "That sound is outside SOUNDS_PREFIX." });
   }
-  return reply.sendFile(file.slice(prefix.length), SOUNDS_DIR);
+  const relative = file.slice(prefix.length);
+
+  if (/\.(ogg|opus)$/i.test(relative)) {
+    const repaired = await readRepaired(path.join(SOUNDS_DIR, relative));
+    if (repaired) return sendBuffer(req, reply.type("audio/ogg"), repaired);
+  }
+  return reply.sendFile(relative, SOUNDS_DIR);
 });
 
 fastify.listen({ port: PORT, host: HOST }, (err, address) => {
