@@ -24,7 +24,12 @@ const ONLY_BOARDS = (process.env.SOUNDBOARDS || "")
 // file:// paths from its own machine, so SOUNDS_PREFIX is the folder as Kenku
 // sees it (e.g. /home/me/Music/Sounds) and SOUNDS_DIR is where that same folder
 // is mounted in this container. Leave SOUNDS_PREFIX unset to disable previews.
-const SOUNDS_PREFIX = (process.env.SOUNDS_PREFIX || "").replace(/\/+$/, "");
+// It may list several comma-separated names for that one folder, because Kenku
+// can report both a symlinked path and its target (/home vs /var/home).
+const SOUNDS_PREFIXES = (process.env.SOUNDS_PREFIX || "")
+  .split(",")
+  .map((p) => p.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
 const SOUNDS_DIR = process.env.SOUNDS_DIR || "/sounds";
 
 const fastify = Fastify({ logger: true });
@@ -60,7 +65,7 @@ async function kenku(pathname, init) {
 
 fastify.get("/api/config", async () => ({
   kenkuUrl: KENKU_URL,
-  previews: Boolean(SOUNDS_PREFIX),
+  previews: SOUNDS_PREFIXES.length > 0,
 }));
 
 fastify.get("/api/soundboard", async (_req, reply) => {
@@ -98,7 +103,7 @@ fastify.put("/api/soundboard/stop", async (req, reply) => {
 // sound id; the path comes from Kenku's own list and must sit under
 // SOUNDS_PREFIX, so no client-supplied path ever touches the filesystem.
 fastify.get("/api/audio/:id", async (req, reply) => {
-  if (!SOUNDS_PREFIX) return reply.status(404).send({ message: "Previews are not enabled." });
+  if (!SOUNDS_PREFIXES.length) return reply.status(404).send({ message: "Previews are not enabled." });
 
   const { status, body } = await kenku("/v1/soundboard");
   if (status !== 200) return reply.status(status).send(body);
@@ -112,8 +117,8 @@ fastify.get("/api/audio/:id", async (req, reply) => {
   } catch {
     return reply.status(404).send({ message: "That sound is not a local file." });
   }
-  const prefix = `${SOUNDS_PREFIX}${path.sep}`;
-  if (!file.startsWith(prefix)) {
+  const prefix = SOUNDS_PREFIXES.map((p) => `${p}${path.sep}`).find((p) => file.startsWith(p));
+  if (!prefix) {
     return reply.status(404).send({ message: "That sound is outside SOUNDS_PREFIX." });
   }
   return reply.sendFile(file.slice(prefix.length), SOUNDS_DIR);

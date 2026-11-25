@@ -17,7 +17,8 @@ services:
       # Optional: comma-separated soundboard titles to show (empty = all).
       SOUNDBOARDS: "${SOUNDBOARDS:-}"
       # Optional in-browser previews: the sounds folder as Kenku reports it
-      # (e.g. /home/me/Music/Sounds). Leave empty to disable.
+      # (e.g. /home/me/Music/Sounds). Comma-separate several names for the same
+      # folder (e.g. /home/... and /var/home/...). Leave empty to disable.
       SOUNDS_PREFIX: "${SOUNDS_PREFIX:-}"
     volumes:
       # Where that same folder is mounted on this Docker host (e.g. an NFS or

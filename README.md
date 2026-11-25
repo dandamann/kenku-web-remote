@@ -48,7 +48,7 @@ KENKU_URL=http://127.0.0.1:3333 npm start
 | ----------- | ---------------------------------- | --------------------------------------- |
 | `KENKU_URL` | `http://host.docker.internal:3333` | Base URL of the Kenku FM remote server. |
 | `SOUNDBOARDS` | _(all)_                          | Comma-separated soundboard titles to show, e.g. `Combat,Ambience`. Case-insensitive; unset shows everything. |
-| `SOUNDS_PREFIX` | _(off)_                         | The sounds folder as Kenku reports it, e.g. `/home/me/Music/Sounds`. Enables in-browser previews. |
+| `SOUNDS_PREFIX` | _(off)_                         | The sounds folder as Kenku reports it, e.g. `/home/me/Music/Sounds`. Comma-separate several names for the same folder. Enables in-browser previews. |
 | `SOUNDS_HOST_PATH` | `./sounds`                    | Where that folder is mounted on the Docker host. Mounted read-only at `/sounds`. |
 | `PORT`      | `8787`                             | Port the web app listens on.            |
 | `HOST`      | `0.0.0.0`                          | Interface the web app binds to.         |
@@ -72,7 +72,9 @@ read the same files:
 3. Set `SOUNDS_PREFIX` to the folder path **as Kenku reports it**. Run
    `curl http://<kenku-ip>:3333/v1/soundboard` and look at a sound's `url`,
    e.g. `file:///home/me/Music/Sounds/Ship/door.mp3` gives
-   `/home/me/Music/Sounds`.
+   `/home/me/Music/Sounds`. If some sounds show a different path to the same
+   folder (e.g. `/home/...` and `/var/home/...` on Fedora Atomic), list both,
+   comma-separated.
 
 The browser only sends a sound id. The server looks up the path from Kenku's own
 list and refuses anything outside `SOUNDS_PREFIX`. Sounds that aren't local
