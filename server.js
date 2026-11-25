@@ -20,6 +20,13 @@ const ONLY_BOARDS = (process.env.SOUNDBOARDS || "")
   .map((t) => t.trim().toLowerCase())
   .filter(Boolean);
 
+// Optional local playback ("preview") of sounds in the browser. Kenku reports
+// file:// paths from its own machine, so SOUNDS_PREFIX is the folder as Kenku
+// sees it (e.g. /home/me/Music/Sounds) and SOUNDS_DIR is where that same folder
+// is mounted in this container. Leave SOUNDS_PREFIX unset to disable previews.
+const SOUNDS_PREFIX = (process.env.SOUNDS_PREFIX || "").replace(/\/+$/, "");
+const SOUNDS_DIR = process.env.SOUNDS_DIR || "/sounds";
+
 const fastify = Fastify({ logger: true });
 
 fastify.register(fastifyStatic, {
@@ -51,7 +58,10 @@ async function kenku(pathname, init) {
   return { status: res.status, body };
 }
 
-fastify.get("/api/config", async () => ({ kenkuUrl: KENKU_URL }));
+fastify.get("/api/config", async () => ({
+  kenkuUrl: KENKU_URL,
+  previews: Boolean(SOUNDS_PREFIX),
+}));
 
 fastify.get("/api/soundboard", async (_req, reply) => {
   const { status, body } = await kenku("/v1/soundboard");
@@ -82,6 +92,31 @@ fastify.put("/api/soundboard/stop", async (req, reply) => {
     body: JSON.stringify({ id: req.body?.id }),
   });
   reply.status(status).send(body);
+});
+
+// Stream a sound's audio file for in-browser preview. The browser only sends a
+// sound id; the path comes from Kenku's own list and must sit under
+// SOUNDS_PREFIX, so no client-supplied path ever touches the filesystem.
+fastify.get("/api/audio/:id", async (req, reply) => {
+  if (!SOUNDS_PREFIX) return reply.status(404).send({ message: "Previews are not enabled." });
+
+  const { status, body } = await kenku("/v1/soundboard");
+  if (status !== 200) return reply.status(status).send(body);
+
+  const sound = (body.sounds || []).find((s) => s.id === req.params.id);
+  if (!sound) return reply.status(404).send({ message: "Unknown sound." });
+
+  let file;
+  try {
+    file = fileURLToPath(sound.url);
+  } catch {
+    return reply.status(404).send({ message: "That sound is not a local file." });
+  }
+  const prefix = `${SOUNDS_PREFIX}${path.sep}`;
+  if (!file.startsWith(prefix)) {
+    return reply.status(404).send({ message: "That sound is outside SOUNDS_PREFIX." });
+  }
+  return reply.sendFile(file.slice(prefix.length), SOUNDS_DIR);
 });
 
 fastify.listen({ port: PORT, host: HOST }, (err, address) => {

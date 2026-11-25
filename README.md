@@ -48,6 +48,8 @@ KENKU_URL=http://127.0.0.1:3333 npm start
 | ----------- | ---------------------------------- | --------------------------------------- |
 | `KENKU_URL` | `http://host.docker.internal:3333` | Base URL of the Kenku FM remote server. |
 | `SOUNDBOARDS` | _(all)_                          | Comma-separated soundboard titles to show, e.g. `Combat,Ambience`. Case-insensitive; unset shows everything. |
+| `SOUNDS_PREFIX` | _(off)_                         | The sounds folder as Kenku reports it, e.g. `/home/me/Music/Sounds`. Enables in-browser previews. |
+| `SOUNDS_HOST_PATH` | `./sounds`                    | Where that folder is mounted on the Docker host. Mounted read-only at `/sounds`. |
 | `PORT`      | `8787`                             | Port the web app listens on.            |
 | `HOST`      | `0.0.0.0`                          | Interface the web app binds to.         |
 
@@ -56,6 +58,25 @@ KENKU_URL=http://127.0.0.1:3333 npm start
 Tap the star on a sound to add or remove it from a **Favourites** row at the
 top. Favourites are saved in that browser only, so
 each phone keeps its own list.
+
+## Previewing sounds in the browser
+
+Each sound gets a ▶ button that plays the file in your browser (not through
+Kenku), so you can audition sounds from the sofa. It's off until you set it up,
+because Kenku reports `file://` paths on its own machine and this app needs to
+read the same files:
+
+1. Share your Kenku sounds folder from the Kenku machine (NFS or SMB) and mount
+   it on the Docker host, or copy/sync it there.
+2. Set `SOUNDS_HOST_PATH` to that mount point on the Docker host.
+3. Set `SOUNDS_PREFIX` to the folder path **as Kenku reports it**. Run
+   `curl http://<kenku-ip>:3333/v1/soundboard` and look at a sound's `url`,
+   e.g. `file:///home/me/Music/Sounds/Ship/door.mp3` gives
+   `/home/me/Music/Sounds`.
+
+The browser only sends a sound id. The server looks up the path from Kenku's own
+list and refuses anything outside `SOUNDS_PREFIX`. Sounds that aren't local
+files (`http(s)` URLs) can't be previewed.
 
 ## How it works
 

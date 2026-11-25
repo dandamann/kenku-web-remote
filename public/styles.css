@@ -168,6 +168,28 @@ body {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
   cursor: pointer;
 }
+.preview {
+  position: absolute;
+  top: 0;
+  right: 44px;
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.95rem;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+}
+.preview.on {
+  color: #5cc8ff;
+}
+.tile.has-preview .sound.playing::after {
+  right: 88px;
+}
 .star.on {
   color: #f5c542;
 }

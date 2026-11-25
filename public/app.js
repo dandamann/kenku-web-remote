@@ -7,6 +7,9 @@ let soundsById = new Map(); // id -> full sound object
 let playing = new Set(); // ids currently playing (from Kenku)
 let pending = new Set(); // ids we just tapped, awaiting confirmation
 let toastTimer;
+let previewsEnabled = false; // set from /api/config
+let previewAudio = null; // the one sound currently previewing in this browser
+let previewId = null;
 
 function toast(msg, isError = false) {
   toastEl.textContent = msg;
@@ -110,6 +113,16 @@ function makeSoundButton(sound, board) {
   star.addEventListener("click", () => toggleFavourite(sound.id));
   tile.appendChild(star);
 
+  if (previewsEnabled) {
+    tile.classList.add("has-preview");
+    const prev = document.createElement("button");
+    prev.className = "preview";
+    prev.type = "button";
+    prev.dataset.id = sound.id;
+    prev.addEventListener("click", () => togglePreview(sound));
+    tile.appendChild(prev);
+  }
+
   return tile;
 }
 
@@ -155,6 +168,7 @@ function renderBoards() {
     boardsEl.appendChild(makeSection(board.title || "Soundboard", buttons));
   }
   applyPlayingClasses();
+  applyPreviewClasses();
 }
 
 async function loadBoards() {
@@ -171,6 +185,44 @@ async function loadBoards() {
       err.body?.message || err.message
     )}<br><br>Check that Kenku FM is running and the remote is enabled.</p>`;
   }
+}
+
+// Preview plays the file in this browser only (not through Kenku), one at a time.
+function applyPreviewClasses() {
+  for (const btn of boardsEl.querySelectorAll(".preview")) {
+    const on = btn.dataset.id === previewId;
+    btn.classList.toggle("on", on);
+    btn.textContent = on ? "\u25A0" : "\u25B6";
+    btn.setAttribute("aria-label", on ? "Stop preview" : "Preview in this browser");
+  }
+}
+
+function stopPreview() {
+  previewAudio?.pause();
+  previewAudio = null;
+  previewId = null;
+  applyPreviewClasses();
+}
+
+function togglePreview(sound) {
+  const wasPlaying = previewId === sound.id;
+  stopPreview();
+  if (wasPlaying) return;
+
+  const audio = new Audio(`/api/audio/${encodeURIComponent(sound.id)}`);
+  audio.loop = Boolean(sound.loop);
+  audio.volume = Math.min(1, Math.max(0, sound.volume ?? 1));
+  audio.addEventListener("ended", () => {
+    if (previewAudio === audio) stopPreview();
+  });
+  audio.addEventListener("error", () => {
+    if (previewAudio === audio) stopPreview();
+    toast("Couldn't play that preview. Check the sounds mount.", true);
+  });
+  previewAudio = audio;
+  previewId = sound.id;
+  applyPreviewClasses();
+  audio.play().catch(() => {});
 }
 
 function applyPlayingClasses() {
@@ -271,5 +323,13 @@ document.addEventListener("visibilitychange", () => {
   }
 });
 
-loadBoards();
-startPolling();
+async function init() {
+  try {
+    previewsEnabled = Boolean((await api("/api/config")).previews);
+  } catch {
+    // Previews stay off; loadBoards reports the connection problem itself.
+  }
+  loadBoards();
+  startPolling();
+}
+init();

@@ -16,5 +16,12 @@ services:
       KENKU_URL: "${KENKU_URL:-http://host.docker.internal:3333}"
       # Optional: comma-separated soundboard titles to show (empty = all).
       SOUNDBOARDS: "${SOUNDBOARDS:-}"
+      # Optional in-browser previews: the sounds folder as Kenku reports it
+      # (e.g. /home/me/Music/Sounds). Leave empty to disable.
+      SOUNDS_PREFIX: "${SOUNDS_PREFIX:-}"
+    volumes:
+      # Where that same folder is mounted on this Docker host (e.g. an NFS or
+      # SMB share). Only used for previews.
+      - "${SOUNDS_HOST_PATH:-./sounds}:/sounds:ro"
     extra_hosts:
       - "host.docker.internal:host-gateway"
