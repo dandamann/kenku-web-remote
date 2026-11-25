@@ -35,6 +35,9 @@ const SOUNDS_PREFIXES = (process.env.SOUNDS_PREFIX || "")
   .filter(Boolean);
 const SOUNDS_DIR = process.env.SOUNDS_DIR || "/sounds";
 
+// Optional address of the Bardic Inspiration app, linked from a bottom bar.
+const BARDIC_URL = /^https?:\/\//i.test(process.env.BARDIC_URL || "") ? process.env.BARDIC_URL : null;
+
 const fastify = Fastify({ logger: true });
 
 fastify.register(fastifyStatic, {
@@ -69,6 +72,7 @@ async function kenku(pathname, init) {
 fastify.get("/api/config", async () => ({
   kenkuUrl: KENKU_URL,
   previews: SOUNDS_PREFIXES.length > 0,
+  bardicUrl: BARDIC_URL,
 }));
 
 fastify.get("/api/soundboard", async (_req, reply) => {

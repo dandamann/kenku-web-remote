@@ -29,6 +29,11 @@ body {
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+body:has(.app-switcher:not([hidden])) {
+  /* room for the app switcher */
+  padding-bottom: calc(env(safe-area-inset-bottom) + 56px);
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -250,7 +255,7 @@ body {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(env(safe-area-inset-bottom) + 20px);
+  bottom: calc(env(safe-area-inset-bottom) + 72px);
   transform: translate(-50%, 20px);
   max-width: 90vw;
   padding: 11px 16px;
@@ -271,3 +276,11 @@ body {
   background: #3a1f28;
   border-color: var(--danger);
 }
+
+/* Switcher between the party apps. Keep the matching block in the other app in step. */
+.app-switcher { position:fixed; left:0; right:0; bottom:0; z-index:20; display:flex; justify-content:center;
+  padding:0 8px env(safe-area-inset-bottom); background:var(--panel); border-top:1px solid #2a2740; }
+.app-switcher a { flex:1; max-width:220px; display:flex; align-items:center; justify-content:center; min-height:52px;
+  border-top:3px solid transparent; color:var(--muted); font-size:.95rem; font-weight:600; text-decoration:none; }
+.app-switcher[hidden] { display:none; }
+.app-switcher a[aria-current] { border-top-color:var(--accent); color:var(--text); }

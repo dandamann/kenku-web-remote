@@ -50,6 +50,7 @@ KENKU_URL=http://127.0.0.1:3333 npm start
 | `SOUNDBOARDS` | _(all)_                          | Comma-separated soundboard titles to show, e.g. `Combat,Ambience`. Case-insensitive; unset shows everything. |
 | `SOUNDS_PREFIX` | _(off)_                         | The sounds folder as Kenku reports it, e.g. `/home/me/Music/Sounds`. Comma-separate several names for the same folder. Enables in-browser previews. |
 | `SOUNDS_HOST_PATH` | `./sounds`                    | Where that folder is mounted on the Docker host. Mounted read-only at `/sounds`. |
+| `BARDIC_URL` | _(off)_                          | Full `http(s)://` address of a Bardic Inspiration app. Shows a bottom bar linking to it. |
 | `PORT`      | `8787`                             | Port the web app listens on.            |
 | `HOST`      | `0.0.0.0`                          | Interface the web app binds to.         |
 

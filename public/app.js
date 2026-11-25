@@ -357,7 +357,13 @@ document.addEventListener("visibilitychange", () => {
 
 async function init() {
   try {
-    previewsEnabled = Boolean((await api("/api/config")).previews);
+    const config = await api("/api/config");
+    previewsEnabled = Boolean(config.previews);
+    // The switcher bar only appears when the server has the other app's address.
+    if (config.bardicUrl) {
+      document.getElementById("bardicLink").href = config.bardicUrl;
+      document.querySelector(".app-switcher").hidden = false;
+    }
     document.getElementById("previewVolumeRow").hidden = !previewsEnabled;
   } catch {
     // Previews stay off; loadBoards reports the connection problem itself.

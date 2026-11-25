@@ -20,6 +20,8 @@ services:
       # (e.g. /home/me/Music/Sounds). Comma-separate several names for the same
       # folder (e.g. /home/... and /var/home/...). Leave empty to disable.
       SOUNDS_PREFIX: "${SOUNDS_PREFIX:-}"
+      # Optional: address of the Bardic Inspiration app, linked from a bottom bar.
+      BARDIC_URL: "${BARDIC_URL:-}"
     volumes:
       # Where that same folder is mounted on this Docker host (e.g. an NFS or
       # SMB share). Only used for previews.
