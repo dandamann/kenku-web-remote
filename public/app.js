@@ -10,6 +10,7 @@ let toastTimer;
 let previewsEnabled = false; // set from /api/config
 let previewAudio = null; // the one sound currently previewing in this browser
 let previewId = null;
+let previewSound = null;
 
 function toast(msg, isError = false) {
   toastEl.textContent = msg;
@@ -187,6 +188,34 @@ async function loadBoards() {
   }
 }
 
+// Preview loudness is this browser's own slider, scaled by each sound's Kenku
+// volume. The slider is squared because hearing is roughly logarithmic: a linear
+// one does almost nothing until the very bottom of its travel.
+const VOLUME_KEY = "kenku-remote-preview-volume";
+const volumeEl = document.getElementById("previewVolume");
+volumeEl.value = loadPreviewVolume();
+volumeEl.addEventListener("input", () => {
+  if (previewAudio) previewAudio.volume = previewVolume(previewSound);
+  try {
+    localStorage.setItem(VOLUME_KEY, volumeEl.value);
+  } catch {
+    // Storage blocked: the setting lasts until reload.
+  }
+});
+
+function loadPreviewVolume() {
+  try {
+    return localStorage.getItem(VOLUME_KEY) ?? "50";
+  } catch {
+    return "50";
+  }
+}
+
+function previewVolume(sound) {
+  const level = (volumeEl.value / 100) ** 2;
+  return Math.min(1, Math.max(0, (sound.volume ?? 1) * level));
+}
+
 // Preview plays the file in this browser only (not through Kenku), one at a time.
 function applyPreviewClasses() {
   for (const btn of boardsEl.querySelectorAll(".preview")) {
@@ -211,7 +240,8 @@ function togglePreview(sound) {
 
   const audio = new Audio(`/api/audio/${encodeURIComponent(sound.id)}`);
   audio.loop = Boolean(sound.loop);
-  audio.volume = Math.min(1, Math.max(0, sound.volume ?? 1));
+  audio.volume = previewVolume(sound);
+  previewSound = sound;
   audio.addEventListener("ended", () => {
     if (previewAudio === audio) stopPreview();
   });
@@ -326,6 +356,7 @@ document.addEventListener("visibilitychange", () => {
 async function init() {
   try {
     previewsEnabled = Boolean((await api("/api/config")).previews);
+    document.getElementById("previewVolumeRow").hidden = !previewsEnabled;
   } catch {
     // Previews stay off; loadBoards reports the connection problem itself.
   }

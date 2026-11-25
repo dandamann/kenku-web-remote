@@ -80,6 +80,10 @@ The browser only sends a sound id. The server looks up the path from Kenku's own
 list and refuses anything outside `SOUNDS_PREFIX`. Sounds that aren't local
 files (`http(s)` URLs) can't be previewed.
 
+The **Preview volume** slider in the header scales each sound's Kenku volume. It
+is saved in that browser and doesn't affect Kenku. (iOS ignores page volume
+controls, so use the phone's volume buttons there.)
+
 Some Discord soundboard `.ogg` files have timestamps that Kenku accepts but
 Firefox rejects. Previews correct them on the fly; your files aren't changed.
 
